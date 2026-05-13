@@ -44,6 +44,9 @@ void show_error(int type, const char *name)
        case 1:
            ERRN04(name);
            break;
+       case 2:
+           ERRN06(name);
+           break;
        default:
            ERRN02;
            break;
@@ -180,4 +183,82 @@ void parse_csv_row(struct Schema *schema, char *csv_line, struct Row *out_row, c
         out_row->col_count += 1;
     }
 }
+
+/**
+ * @brief Compares two rows
+ * @param struct Row row_a
+ * @param struct Row row_b
+ * return int
+ */
+int compare_rows(struct Row *row_a, struct Row *row_b)
+{
+    if(row_a->col_count != row_b->col_count) return 0;
+
+    for(int i = 0; i < row_a->col_count; i++)
+    {
+        switch(row_a->data[i].type)
+        {
+            case TYPE_INT:
+                if(row_a->data[i].value.i_val != row_b->data[i].value.i_val) return 0;
+                break;
+            case TYPE_FLOAT:
+                if(row_a->data[i].value.f_val != row_b->data[i].value.f_val) return 0;
+                break;
+            case TYPE_STRING:
+                if(strcmp(row_a->data[i].value.s_val, row_b->data[i].value.s_val) != 0) return 0;
+                break;
+            default:
+                return 0;
+        }
+    }
+    
+    return 1;
+}
+
+/**
+ * @brief Execute the files reconciliation process
+ * @param struct Schema schema
+ * @param const char file_a pointer
+ * @param const char file_b pointer
+ * @param const char separator: The CSV separator
+ * return int
+ */
+int run_reconciliation(struct Schema *schema, const char *file_a, const char *file_b, const char *separator)
+{
+    int line_number = 1;
+    char line_a[256], line_b[256];
+    struct Row row_a, row_b;
+
+    FILE *fa = fopen(file_a, "r");
+    if(fa == NULL) show_error(FILEPATH, file_a);
+    
+    FILE *fb = fopen(file_b, "r");
+    if(fb == NULL) show_error(FILEPATH, file_b);
+
+    while(fgets(line_a, sizeof(line_a), fa) != NULL && fgets(line_b, sizeof(line_b), fb) != NULL)
+    {
+        parse_csv_row(schema, line_a, &row_a, separator);
+        parse_csv_row(schema, line_b, &row_b, separator);
+        
+        int are_equals = compare_rows(&row_a, &row_b);
+        
+        if(are_equals == 1)
+        {
+            printf("✅ Rows are identical\n");
+        }
+        else
+        {
+            printf("❌ [ERROR] Mismatch found on line %d\n", line_number);
+        }
+
+        line_number += 1;
+    }
+
+    fclose(fa);
+    fclose(fb);
+    // keep track for reporting and statistic 
+    // without the need of creating a new variable.
+    return line_number - 1;
+}
+
 
