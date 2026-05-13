@@ -83,4 +83,51 @@ void add_column(struct Schema *schema, const char *col_name, enum DataType type)
     schema->column_count += 1;
 }
 
+/**
+ * @brief Map the given string to the correct DataType
+ * @param const char type_str
+ * @return enum DataType 
+ */
+enum DataType map_string_to_type(const char *type_str)
+{
+    if((strcmp(type_str, "INT") == 0) || (strcmp(type_str, "int") == 0)) return TYPE_INT;
+    if((strcmp(type_str, "FLOAT") == 0) || (strcmp(type_str, "float") == 0)) return TYPE_FLOAT;
+    if((strcmp(type_str, "STRING") == 0) || (strcmp(type_str, "string") == 0)) return TYPE_STRING;
+
+    ERRN02;
+    exit(1);
+}
+
+/**
+ * @brief Parses and executes the Schema
+ * @param struct Schema active_schema
+ * @param const char command
+ * @return void
+ */
+void parse_and_execute(struct Schema *active_schema, const char *command)
+{
+    char parsed_name[COL_NAME_SIZE];
+    char parsed_type[MAX_TYPE_SIZE];
+
+    if(strncmp(command, TK_ADD_COL, TK_ADD_COL_SIZE) == 0)
+    {
+        sscanf(command, TK_ADD_COL_REGEX, parsed_name, parsed_type);
+        enum DataType type = map_string_to_type(&parsed_type[0]);
+        // add column
+        add_column(active_schema, parsed_name, type);
+    }
+    else
+    {
+        ERRN05(command);
+    }
+}
+
+
+
+
+
+
+
+
+
 

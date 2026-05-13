@@ -22,15 +22,18 @@ int main(void)
     struct Schema *schema = NULL;
     init_schema(&schema, "CFS");
     printf("Schema name: %s\n", schema->model_name);  
-    add_column(schema, "Transaction ID", TYPE_INT);
-    add_column(schema, "Amount", TYPE_FLOAT);
-    add_column(schema, "Cost Center", TYPE_STRING);
+    
+    parse_and_execute(schema, "ADD COL (Transaction ID) INT");
+    parse_and_execute(schema, "ADD COL (Amount) FLOAT");
+    parse_and_execute(schema, "ADD COL (Cost Center) STRING");
     
     for(int i = 0; i < schema->column_count; i++)
     { 
         printf("Column's name: %s\n", schema->columns[i].name);
         printf("Column's type: %u\n", schema->columns[i].type);
     }
+
+
     free(schema);
     return 0;
 }

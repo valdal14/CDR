@@ -7,6 +7,7 @@
 #define COL_NAME_SIZE 32
 #define MAX_COL_NUM 16
 #define MAX_SCHEMA_MODEL_NAME_SIZE 32
+#define MAX_TYPE_SIZE 16
 // Types 
 #define SCHEMA 0
 #define COLUMN 1
@@ -15,7 +16,12 @@
 #define ERRN02 fprintf(stderr, "Unsupported object type\n");
 #define ERRN03(schema_name) fprintf(stderr, "Schema named '%s' could not be allocated\n", schema_name);
 #define ERRN04(col_name) fprintf(stderr, "Column named '%s' can't be added. Max number of columns reached\n", col_name);
-// Data Structures 
+#define ERRN05(cmd) fprintf(stderr, "Invalid command '%s'.Valid format is 'ADD COL (Column Name) STRING'\n", cmd); 
+// Lexer Tokens
+#define TK_ADD_COL "ADD COL"
+#define TK_ADD_COL_SIZE 7
+#define TK_ADD_COL_REGEX "ADD COL (%[^)]) %s"
+// Data Structures
 enum DataType
 {
     TYPE_INT,
@@ -54,5 +60,7 @@ void print_variant(struct Variant *v);
 void init_schema(struct Schema **schema, const char *name);
 void show_error(int type, const char *name);
 void add_column(struct Schema *schema, const char *col_name, enum DataType type);
+enum DataType map_string_to_type(const char *type_str);
+void parse_and_execute(struct Schema *active_schema, const char *command);
 
 #endif
