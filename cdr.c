@@ -27,21 +27,60 @@ void print_variant(struct Variant *v)
     }
 }
 
-int main(void)
+/**
+ * @brief Displays the error message related to the 
+ * memory allocation of a given type
+ * @param int type: Defined in the Types in the cdr.h file
+ * @param const char name 
+ * @return void
+ */
+void show_error(int type, const char *name)
 {
-    struct Variant v1, v2, v3;
-    v1.type = TYPE_INT;
-    v1.value.i_val = 42;
+   switch(type)
+   {
+       case 0:
+           ERRN03(name);
+           break;
+       case 1:
+           ERRN04(name);
+           break;
+       default:
+           ERRN02;
+           break;
+   }
 
-    v2.type = TYPE_FLOAT;
-    v2.value.f_val = 14.50;
-
-    v3.type = TYPE_STRING;
-    strncpy(v3.value.s_val, "Cost Center", STR_SIZE);
-    
-    print_variant(&v1);
-    print_variant(&v2);
-    print_variant(&v3);
-
-    return 0;
+   exit(1);
 }
+
+/**
+ * @brief Initialise the schema 
+ * @param struct Schema double pointer
+ * @param const char name: The name of the model 
+ */
+void init_schema(struct Schema **schema, const char *name)
+{
+    struct Schema *new_schema = (struct Schema *)malloc(sizeof(struct Schema));
+    if(new_schema == NULL) show_error(SCHEMA, name);
+        
+    strncpy(new_schema->model_name, name, MAX_SCHEMA_MODEL_NAME_SIZE);
+    new_schema->column_count = 0;
+
+    *schema = new_schema;
+}
+
+/**
+ * @brief Adds a new column to an existig Schema
+ * @param struct Schema pointer
+ * @param const char col_name: The name of the column
+ * @param enum DataType type: The type of data stored in this column
+ * @return void
+ */
+void add_column(struct Schema *schema, const char *col_name, enum DataType type)
+{
+    if(schema->column_count >= MAX_COL_NUM) show_error(COLUMN, col_name);
+    strncpy(schema->columns[schema->column_count].name, col_name, COL_NAME_SIZE);
+    schema->columns[schema->column_count].type = type;
+    schema->column_count += 1;
+}
+
+
