@@ -11,13 +11,14 @@
 // Types 
 #define SCHEMA 0
 #define COLUMN 1
-#define ROW 2
+#define FILEPATH 2
 // Error Messages
 #define ERRN01 fprintf(stderr, "Max number of columns (%d) reached for this schema\n", MAX_COL_NUM);
 #define ERRN02 fprintf(stderr, "Unsupported object type\n");
 #define ERRN03(schema_name) fprintf(stderr, "Schema named '%s' could not be allocated\n", schema_name);
 #define ERRN04(col_name) fprintf(stderr, "Column named '%s' can't be added. Max number of columns reached\n", col_name);
 #define ERRN05(cmd) fprintf(stderr, "Invalid command '%s'.Valid format is 'ADD COL (Column Name) STRING'\n", cmd); 
+#define ERRN06(filepath) fprintf(stderr, "Could not open the file %s\n", filepath);
 // Lexer Tokens
 #define TK_ADD_COL "ADD COL"
 #define TK_ADD_COL_SIZE 7
@@ -70,5 +71,7 @@ void add_column(struct Schema *schema, const char *col_name, enum DataType type)
 enum DataType map_string_to_type(const char *type_str);
 void parse_and_execute(struct Schema *active_schema, const char *command);
 void parse_csv_row(struct Schema *schema, char *csv_line, struct Row *out_row, const char *separator);
+int compare_rows(struct Row *row_a, struct Row *row_b);
+int run_reconciliation(struct Schema *schema, const char *file_a, const char *file_b, const char *separator);
 
 #endif
