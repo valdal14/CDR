@@ -11,6 +11,7 @@
 // Types 
 #define SCHEMA 0
 #define COLUMN 1
+#define ROW 2
 // Error Messages
 #define ERRN01 fprintf(stderr, "Max number of columns (%d) reached for this schema\n", MAX_COL_NUM);
 #define ERRN02 fprintf(stderr, "Unsupported object type\n");
@@ -55,6 +56,12 @@ struct Schema
     int column_count;
 };
 
+struct Row
+{
+    struct Variant data[MAX_COL_NUM];
+    int col_count;
+};
+
 // Engine routines
 void print_variant(struct Variant *v);
 void init_schema(struct Schema **schema, const char *name);
@@ -62,5 +69,6 @@ void show_error(int type, const char *name);
 void add_column(struct Schema *schema, const char *col_name, enum DataType type);
 enum DataType map_string_to_type(const char *type_str);
 void parse_and_execute(struct Schema *active_schema, const char *command);
+void parse_csv_row(struct Schema *schema, char *csv_line, struct Row *out_row, const char *separator);
 
 #endif

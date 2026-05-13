@@ -122,12 +122,62 @@ void parse_and_execute(struct Schema *active_schema, const char *command)
     }
 }
 
+/**
+ * @brief Parse the CSV row 
+ * @param struct Schema schema
+ * @param char csv_line pointer
+ * @param struct Row out_row pointer
+ * @param const char separator: The CSV separator
+ * @return void
+ */
+void parse_csv_row(struct Schema *schema, char *csv_line, struct Row *out_row, const char *separator)
+{
+    out_row->col_count = 0;
+    // granb the first token 
+    char *token = NULL;
 
+    for(int i = 0; i <  schema->column_count; i++)
+    {
+        // granb the first token from the csv_line
+        if(i == 0)
+        {
+            token = strtok(csv_line, separator);
+            if(token == NULL) break;
+        }
+        else
+        {
+            // grab the remaing tokens in the csv_line
+            token = strtok(NULL, separator);
+            if(token == NULL) break;
+        }
+        
+        switch(schema->columns[i].type)
+        {
+            case TYPE_INT:
+            {
+                out_row->data[i].type = TYPE_INT;
+                out_row->data[i].value.i_val = atoi(token);
+                break;
+            }
+            case TYPE_FLOAT:
+            {    
+                out_row->data[i].type = TYPE_FLOAT;
+                out_row->data[i].value.f_val = atof(token);
+                break;
+            }
+            case TYPE_STRING:
+            {
+                out_row->data[i].type = TYPE_STRING;
+                strncpy(out_row->data[i].value.s_val, token, STR_SIZE); 
+                break;
+            }
+            default:
+                ERRN02;
+                exit(1);
+        }
 
-
-
-
-
-
-
+        // increment the row column count
+        out_row->col_count += 1;
+    }
+}
 

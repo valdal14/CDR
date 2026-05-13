@@ -5,35 +5,27 @@
 
 int main(void)
 {
-    struct Variant v1, v2, v3;
-    v1.type = TYPE_INT;
-    v1.value.i_val = 42;
+	struct Schema *schema = NULL;
+	init_schema(&schema, "CFS");
+	parse_and_execute(schema, "ADD COL (Transaction ID) INT");
+	parse_and_execute(schema, "ADD COL (Amount) FLOAT");
+	parse_and_execute(schema, "ADD COL (Cost Center) STRING");
 
-    v2.type = TYPE_FLOAT;
-    v2.value.f_val = 14.50;
+	// Assuming mock_csv is a line from the csv file we will read
+	char mock_csv[] = "42,14.50,Engineering";
 
-    v3.type = TYPE_STRING;
-    strncpy(v3.value.s_val, "Cost Center", STR_SIZE);
+	// Declare a blank row
+	struct Row my_row;
 
-    print_variant(&v1);
-    print_variant(&v2);
-    print_variant(&v3);
-    
-    struct Schema *schema = NULL;
-    init_schema(&schema, "CFS");
-    printf("Schema name: %s\n", schema->model_name);  
-    
-    parse_and_execute(schema, "ADD COL (Transaction ID) INT");
-    parse_and_execute(schema, "ADD COL (Amount) FLOAT");
-    parse_and_execute(schema, "ADD COL (Cost Center) STRING");
-    
-    for(int i = 0; i < schema->column_count; i++)
-    { 
-        printf("Column's name: %s\n", schema->columns[i].name);
-        printf("Column's type: %u\n", schema->columns[i].type);
-    }
+	// The parser does the tokenizing and the casting!
+	parse_csv_row(schema, mock_csv, &my_row, ",");
 
-
+	// Verify
+	for(int i = 0; i < my_row.col_count; i++)
+	{
+	    print_variant(&my_row.data[i]);
+	}
+	
     free(schema);
     return 0;
 }
