@@ -47,6 +47,9 @@ void show_error(int type, const char *name)
        case 2:
            ERRN06(name);
            break;
+       case 3:
+           ERRN07(name);
+           break;
        default:
            ERRN02;
            break;
@@ -285,4 +288,50 @@ enum DataType infer_type(const char *str)
     }
 
     return TYPE_STRING;
+}
+
+/**
+ * @brief Builds a schema directly from a given csv file 
+ * @param const char filepath pointer
+ * @param const char separator
+ * @return void
+ */
+void build_schema_from_csv(struct Schema *schema, const char *filepath, const char *separator)
+{
+    FILE *file = fopen(filepath, "r");
+    if(file == NULL) show_error(FILEPATH, filepath);
+
+    char header_buffer[256];
+    char data_buffer[256];
+
+    schema->column_count = 0;
+
+    // Grab both lines
+    if (fgets(header_buffer, sizeof(header_buffer), file) == NULL) show_error(CSV, filepath);
+    if (fgets(data_buffer, sizeof(data_buffer), file) == NULL) show_error(CSV, filepath);
+    
+    fclose(file);
+
+    // Strip newlines from both buffers
+    header_buffer[strcspn(header_buffer, "\r\n")] = 0;
+    data_buffer[strcspn(data_buffer, "\r\n")] = 0;
+
+    // PARSE HEADER: Extract column's names
+    char *h_tok = strtok(header_buffer, separator);
+    while (h_tok != NULL && schema->column_count < MAX_COL_NUM) 
+    {
+        strncpy(schema->columns[schema->column_count].name, h_tok, COL_NAME_SIZE);
+        schema->column_count++;
+        h_tok = strtok(NULL, separator);
+    }
+
+    // PARSE DATA: Infer types
+    int i = 0;
+    char *d_tok = strtok(data_buffer, separator);
+    while (d_tok != NULL && i < schema->column_count)
+    {
+        schema->columns[i].type = infer_type(d_tok);
+        i++;
+        d_tok = strtok(NULL, separator);
+    }
 }
