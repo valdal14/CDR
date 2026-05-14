@@ -15,8 +15,18 @@ int main(void)
     printf("-------------------------------\n");
     printf("📊 Analysed %d lines\n", total_lines);
 
-    // Testing type inference
-    printf("Type of '42': %d\n", infer_type("42"));
-    printf("Type of '14.50': %d\n", infer_type("14.50"));
-    printf("Type of 'Engineering': %d\n", infer_type("Engineering"));
+    free(schema);
+
+    // Testing build schema from csv 
+    struct Schema *new_schema = NULL;
+    init_schema(&new_schema, "Auto_CFS");
+
+    // Build it automatically!
+    build_schema_from_csv(new_schema, "bucket_a_with_header.csv", ",");
+
+    // Prove it worked
+    for(int i = 0; i < new_schema->column_count; i++)
+    {
+        printf("Auto-Column: %s | Type: %u\n", new_schema->columns[i].name, new_schema->columns[i].type);
+    }
 }
