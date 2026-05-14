@@ -73,5 +73,6 @@ void parse_and_execute(struct Schema *active_schema, const char *command);
 void parse_csv_row(struct Schema *schema, char *csv_line, struct Row *out_row, const char *separator);
 int compare_rows(struct Row *row_a, struct Row *row_b);
 int run_reconciliation(struct Schema *schema, const char *file_a, const char *file_b, const char *separator);
+enum DataType infer_type(const char *str);
 
 #endif

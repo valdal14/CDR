@@ -261,4 +261,28 @@ int run_reconciliation(struct Schema *schema, const char *file_a, const char *fi
     return line_number - 1;
 }
 
+/**
+ * @brief Infers the type based on the given value
+ * @param const char str
+ * @return enum DataType
+ */
+enum DataType infer_type(const char *str)
+{
+    // Check first for  NULL pointers or empty strings
+    if(str == NULL || *str == '\0') return TYPE_STRING;
 
+    char *endptr;
+    
+    // Check for integers 
+    strtol(str, &endptr, 10);
+    if(str != endptr && *endptr == '\0') return TYPE_INT;
+    
+    // Check for floats 
+    if(strchr(str, '.')) 
+    {
+        strtod(str, &endptr);
+        if(str != endptr && *endptr == '\0') return TYPE_FLOAT;
+    }
+
+    return TYPE_STRING;
+}
