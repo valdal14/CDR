@@ -15,4 +15,8 @@ int main(void)
     printf("-------------------------------\n");
     printf("📊 Analysed %d lines\n", total_lines);
 
+    // Testing type inference
+    printf("Type of '42': %d\n", infer_type("42"));
+    printf("Type of '14.50': %d\n", infer_type("14.50"));
+    printf("Type of 'Engineering': %d\n", infer_type("Engineering"));
 }
