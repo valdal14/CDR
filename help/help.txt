@@ -1,0 +1,39 @@
+============================================================
+                        HELP MANUAL
+============================================================
+The CDR Engine supports two distinct reconciliation workflows
+based on your data structure.
+
+------------------------------------------------------------
+WORKFLOW A: AUTO-INFERENCE MODE (Recommended)
+------------------------------------------------------------
+Best for standard datasets that include a Header row. 
+The engine will extract column names, dynamically infer 
+memory types (INT/FLOAT/STRING), and execute the comparison 
+in a single pass.
+
+Usage: 
+Simply provide File A, File B, and your delimiter when 
+prompted by the Auto-Reconciler workflow.
+
+Example: file_a.csv file_b.csv sep=","
+------------------------------------------------------------
+WORKFLOW B: MANUAL SCHEMA MODE (Expert)
+------------------------------------------------------------
+Best for headless data dumps (no headers) or when strict 
+type enforcement is required. You must define the memory 
+blueprint manually before passing the files.
+
+Schema Commands:
+  ADD COL (Column Name) TYPE
+  -> Allocates a new column in memory.
+  -> Supported Types: INT, FLOAT, STRING
+  -> Example: ADD COL (Transaction ID) INT
+  -> Example: ADD COL (Amount) FLOAT
+
+------------------------------------------------------------
+GLOBAL COMMANDS
+------------------------------------------------------------
+  HELP  : Displays this manual.
+  EXIT  : Safely closes the engine and frees all memory.
+============================================================

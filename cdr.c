@@ -224,9 +224,10 @@ int compare_rows(struct Row *row_a, struct Row *row_b)
  * @param const char file_a pointer
  * @param const char file_b pointer
  * @param const char separator: The CSV separator
+ * @param const char has_header: Whether the file has header or not
  * return int
  */
-int run_reconciliation(struct Schema *schema, const char *file_a, const char *file_b, const char *separator)
+int run_reconciliation(struct Schema *schema, const char *file_a, const char *file_b, const char *separator, int has_header)
 {
     int line_number = 1;
     char line_a[256], line_b[256];
@@ -237,6 +238,14 @@ int run_reconciliation(struct Schema *schema, const char *file_a, const char *fi
     
     FILE *fb = fopen(file_b, "r");
     if(fb == NULL) show_error(FILEPATH, file_b);
+
+    // If the file has an header we skip the first row 
+    if(has_header == 1)
+    {
+        fgets(line_a, sizeof(line_a), fa);
+        fgets(line_b, sizeof(line_b), fb);
+        line_number += 1;
+    }
 
     while(fgets(line_a, sizeof(line_a), fa) != NULL && fgets(line_b, sizeof(line_b), fb) != NULL)
     {
