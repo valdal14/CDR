@@ -1,0 +1,21 @@
+============================================================
+             CDR AUTO-RECONCILIATION ENGINE v1.0
+============================================================
+Welcome to the C-Data Reconciler (CDR).
+
+This engine is designed to ingest, parse, and mathematically 
+compare dual data streams to detect discrepancies at the 
+memory level.
+
+[ SUPPORTED FORMATS ]
+* File Type : CSV (Standard and Custom Delimiters)
+* Data Types: INT, FLOAT, STRING (Max 64 characters)
+* Max Memory: 64 Columns per Schema
+
+[ WORKFLOW MODE ]
+Please select your reconciliation engine mode:
+  > Type 'AUTO'   : For standard datasets with Header rows.
+  > Type 'MANUAL' : For headless datasets requiring strict 
+                    memory blueprinting via CLI.
+  > Type 'HELP'   : To read the system manual.
+============================================================

@@ -5,7 +5,7 @@
 
 #define STR_SIZE 64
 #define COL_NAME_SIZE 32
-#define MAX_COL_NUM 16
+#define MAX_COL_NUM 64
 #define MAX_SCHEMA_MODEL_NAME_SIZE 32
 #define MAX_TYPE_SIZE 16
 // Types 
@@ -21,10 +21,19 @@
 #define ERRN05(cmd) fprintf(stderr, "Invalid command '%s'.Valid format is 'ADD COL (Column Name) STRING'\n", cmd); 
 #define ERRN06(filepath) fprintf(stderr, "Could not open the file %s\n", filepath);
 #define ERRN07(filepath) fprintf(stderr, "Cannot process %s it appears to be empty\n", filepath);
+#define ERRN08(cmd) fprintf(stderr, "Invalid command: '%s'. Please type HELP for more information.\n", cmd);
 // Lexer Tokens
 #define TK_ADD_COL "ADD COL"
 #define TK_ADD_COL_SIZE 7
 #define TK_ADD_COL_REGEX "ADD COL (%[^)]) %s"
+// Doc
+#define MENU_PATH "./help/welcome.txt"
+#define HELP_PATH "./help/help.txt"
+// Shell Commands
+#define EXIT 0
+#define HELP 1
+#define AUTO 2
+#define MANUAL 3
 // Data Structures
 enum DataType
 {
@@ -74,7 +83,7 @@ enum DataType map_string_to_type(const char *type_str);
 void parse_and_execute(struct Schema *active_schema, const char *command);
 void parse_csv_row(struct Schema *schema, char *csv_line, struct Row *out_row, const char *separator);
 int compare_rows(struct Row *row_a, struct Row *row_b);
-int run_reconciliation(struct Schema *schema, const char *file_a, const char *file_b, const char *separator);
+int run_reconciliation(struct Schema *schema, const char *file_a, const char *file_b, const char *separator, int has_header);
 enum DataType infer_type(const char *str);
 void build_schema_from_csv(struct Schema *schema, const char *filepath, const char *separator);
 
