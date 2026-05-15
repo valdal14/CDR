@@ -30,14 +30,17 @@ void show_help(void(*on_file_open)(FILE *file))
 
 /**
  * @brief Shows the stats about the number of lines that were processed
- * @param int lines
+ * @param struct Report pointer
  * @return void
  */
-void show_stats(int lines)
+void show_stats(struct Report *stats)
 {
-    printf("-------------------------------\n");
-    printf("📊 Analysed %d lines\n", lines);
-    printf("-------------------------------\n");
+    printf("----------------------------------------------------\n");
+    printf("📊 Total Lines Processed : %d\n", stats->processed_lines);
+    printf("✅ Successful Lines      : %d\n", stats->success_lines);
+    printf("❌ Failed Lines          : %d\n", stats->failed_lines);
+    printf("📄 Report saved to       : reconciliation_report.log\n");
+    printf("----------------------------------------------------\n");
 }
 
 /**
@@ -98,9 +101,9 @@ void init_manual_process(void)
 
     printf("\n⚙️ Executing Engine...\n");
     // Assuming manual headless dumps don't have headers
-    int lines = run_reconciliation(schema, file_a, file_b, sep, 0); 
+    struct Report stats = run_reconciliation(schema, file_a, file_b, sep, 0); 
             
-    show_stats(lines);
+    show_stats(&stats);
     
     free(schema);
 }
@@ -128,9 +131,9 @@ void init_automatic_process(void)
    
     printf("\n⚙️ Executing Engine...\n");
     
-    int lines = run_reconciliation(schema, file_a, file_b, sep, 1); // 1 = Skip Headers!
+    struct Report stats = run_reconciliation(schema, file_a, file_b, sep, 1); // 1 = Skip Headers!
     
-    show_stats(lines);
+    show_stats(&stats);
     
     free(schema);
 }
