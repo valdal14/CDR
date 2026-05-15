@@ -4,30 +4,6 @@
 #include "cdr.h"
 
 /**
- * @brief Prints out the Variant
- * @param struct Variant pointer
- * @return void
- */
-void print_variant(struct Variant *v)
-{
-    switch(v->type)
-    {
-        case TYPE_INT:
-            printf("INT: %d\n", v->value.i_val);
-            break;
-        case TYPE_FLOAT:
-            printf("FLOAT: %.2f\n", v->value.f_val);
-            break;
-        case TYPE_STRING:
-            printf("STRING: %s\n", v->value.s_val);
-            break;
-        default:
-            fprintf(stderr, "Unsupported Variant type\n");
-            exit(1);
-    }
-}
-
-/**
  * @brief Displays the error message related to the 
  * memory allocation of a given type
  * @param int type: Defined in the Types in the cdr.h file
@@ -217,6 +193,41 @@ int compare_rows(struct Row *row_a, struct Row *row_b)
     
     return 1;
 }
+ 
+/**
+ * @brief Logs the failing lines to disk
+ * @param FILE log_file pointer
+ * @param int line 
+ * @param const char file_a_name pointer
+ * @param const char raw_a pointer
+ * @param const char file_b_name pointer
+ * @param const char raw_b pointer
+ * @return void
+ */
+void log_mismatch(FILE *log_file, int line, const char *file_a_name, const char *raw_a, const char *file_b_name, const char *raw_b)
+{
+    fprintf(log_file, "Mismatch on Line %d\n", line);
+    fprintf(log_file, "[%s] : %s", file_a_name, raw_a);
+    fprintf(log_file, "[%s] : %s\n", file_b_name, raw_b);
+}
+
+/**
+ * @brief Log a success report with the statistics of the 
+ * reconciliation process if no failures were detected.
+ * @param FILE log_file pointer
+ * return void
+ */
+void log_success_report(FILE *log_file, struct Report *stats)
+{
+    fprintf(log_file, "====================================================\n");
+    fprintf(log_file, "              RECONCILIATION SUCCESSFUL             \n");
+    fprintf(log_file, "====================================================\n");
+    fprintf(log_file, "Total Lines Processed : %d\n", stats->processed_lines);
+    fprintf(log_file, "Successful Lines      : %d\n", stats->success_lines);
+    fprintf(log_file, "Mismatches Found      : %d\n", stats->failed_lines);
+    fprintf(log_file, "Status                : MATHEMATICALLY IDENTICAL\n");
+    fprintf(log_file, "====================================================\n");
+}
 
 /**
  * @brief Execute the files reconciliation process
@@ -225,19 +236,26 @@ int compare_rows(struct Row *row_a, struct Row *row_b)
  * @param const char file_b pointer
  * @param const char separator: The CSV separator
  * @param const char has_header: Whether the file has header or not
- * return int
+ * return struct Report
  */
-int run_reconciliation(struct Schema *schema, const char *file_a, const char *file_b, const char *separator, int has_header)
+struct Report run_reconciliation(struct Schema *schema, const char *file_a, const char *file_b, const char *separator, int has_header)
 {
+    int processed_lines = 0;
+    int success_lines = 0;
+    int failed_lines = 0;
     int line_number = 1;
     char line_a[256], line_b[256];
     struct Row row_a, row_b;
+    struct Report reporting = {0};
 
     FILE *fa = fopen(file_a, "r");
     if(fa == NULL) show_error(FILEPATH, file_a);
     
     FILE *fb = fopen(file_b, "r");
     if(fb == NULL) show_error(FILEPATH, file_b);
+ 
+    FILE *log_file = fopen(REPORT_PATH, "w");
+    if(log_file == NULL) show_error(FILEPATH, REPORT_PATH);
 
     // If the file has an header we skip the first row 
     if(has_header == 1)
@@ -249,6 +267,12 @@ int run_reconciliation(struct Schema *schema, const char *file_a, const char *fi
 
     while(fgets(line_a, sizeof(line_a), fa) != NULL && fgets(line_b, sizeof(line_b), fb) != NULL)
     {
+        // Copy the lines before destructing parsing
+        // required to save the failed reporting
+        char raw_a[256], raw_b[256];
+        strcpy(raw_a, line_a);
+        strcpy(raw_b, line_b);
+
         parse_csv_row(schema, line_a, &row_a, separator);
         parse_csv_row(schema, line_b, &row_b, separator);
         
@@ -256,21 +280,33 @@ int run_reconciliation(struct Schema *schema, const char *file_a, const char *fi
         
         if(are_equals == 1)
         {
-            printf("✅ Rows are identical\n");
+            success_lines += 1;
         }
         else
         {
-            printf("❌ [ERROR] Mismatch found on line %d\n", line_number);
+            failed_lines += 1;
+            // save failing line to the report
+            log_mismatch(log_file, line_number, file_a, raw_a, file_b, raw_b);
         }
 
+        processed_lines += 1;
         line_number += 1;
     }
 
+    // prepare the data for the reporting
+    reporting.processed_lines = processed_lines;
+    reporting.success_lines = success_lines;
+    reporting.failed_lines = failed_lines;
+    
+    // log success report if no failures were detected
+    if(failed_lines == 0) log_success_report(log_file, &reporting);
+
     fclose(fa);
     fclose(fb);
-    // keep track for reporting and statistic 
-    // without the need of creating a new variable.
-    return line_number - 1;
+    fclose(log_file);
+    
+
+    return reporting;
 }
 
 /**

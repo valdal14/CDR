@@ -1,11 +1,15 @@
 ============================================================
-             CDR AUTO-RECONCILIATION ENGINE v1.0
+             CDR AUTO-RECONCILIATION ENGINE v1.0.0
 ============================================================
 Welcome to the C-Data Reconciler (CDR).
 
 This engine is designed to ingest, parse, and mathematically 
 compare dual data streams to detect discrepancies at the 
 memory level.
+
+[ System Architect and C Engineer ]
+* Name  : Valerio D'Alessio
+* Email : valdal14@gmail.com
 
 [ SUPPORTED FORMATS ]
 * File Type : CSV (Standard and Custom Delimiters)
