@@ -1,5 +1,7 @@
 # C-Data Reconciler (CDR)
 
+![C](https://img.shields.io/badge/C-00599C?style=flat&logo=c&logoColor=white) ![GCC](https://img.shields.io/badge/Compiler-GCC%20%7C%20Clang-orange?style=flat) ![License](https://img.shields.io/badge/License-MIT-green?style=flat)
+
 A high-performance, memory-safe data reconciliation engine written in pure C. CDR is designed to ingest, parse, and mathematically compare massive dual CSV data streams to detect discrepancies at the memory level. 
 
 By avoiding heavy heap allocations and utilizing stack-based Data Transfer Objects, CDR can process tens of thousands of lines per second, generating granular forensic audit logs for enterprise data pipelines.
