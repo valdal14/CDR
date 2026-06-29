@@ -151,6 +151,7 @@ void parse_csv_row(struct Schema *schema, char *csv_line, struct Row *out_row, c
             {
                 out_row->data[i].type = TYPE_STRING;
                 strncpy(out_row->data[i].value.s_val, token, STR_SIZE); 
+                out_row->data[i].value.s_val[STR_SIZE - 1] = '\0';
                 break;
             }
             default:
@@ -240,12 +241,12 @@ void log_success_report(FILE *log_file, struct Report *stats)
  */
 struct Report run_reconciliation(struct Schema *schema, const char *file_a, const char *file_b, const char *separator, int has_header)
 {
+    struct Row row_a = {0}, row_b = {0};
     int processed_lines = 0;
     int success_lines = 0;
     int failed_lines = 0;
     int line_number = 1;
     char line_a[256], line_b[256];
-    struct Row row_a, row_b;
     struct Report reporting = {0};
 
     FILE *fa = fopen(file_a, "r");
@@ -267,6 +268,8 @@ struct Report run_reconciliation(struct Schema *schema, const char *file_a, cons
 
     while(fgets(line_a, sizeof(line_a), fa) != NULL && fgets(line_b, sizeof(line_b), fb) != NULL)
     {
+        line_a[strcspn(line_a, "\r\n")] = 0;
+        line_b[strcspn(line_b, "\r\n")] = 0;
         // Copy the lines before destructing parsing
         // required to save the failed reporting
         char raw_a[256], raw_b[256];
